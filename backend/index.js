@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express()
 const cookieParser = require('cookie-parser');
+const authRoutes = require('./routes/auth.routes');
 
 require('dotenv').config();
 app.use(express.json());
@@ -10,6 +11,9 @@ const PORT = process.env.PORT || 4000;
 
 const connectDB = require('./config/db');
 connectDB();
+
+//routes
+app.use('/v1/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
     res.send("backend is running...");

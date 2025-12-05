@@ -1,4 +1,5 @@
-const { default: bcrypt } = require("bcryptjs");
+const { bcryptjs } = require("bcryptjs");
+const bcrypt = require('bcrypt');
 const User = require("../models/User");
 const { issueOtpForUser, verifyOtpForUser } = require("../services/otp.service");
 const jwt = require('jsonwebtoken');
@@ -64,7 +65,8 @@ exports.signup = async (req, res) => {
     } catch (err) {
         return res.status(500).json({
             success: false,
-            message: 'Cannot signup right now.'
+            message: 'Cannot signup right now.',
+            err: err.message
         });
     }
 }
@@ -164,7 +166,6 @@ exports.login = async (req, res) => {
                 message: "User login successfull",
             });
     } catch (err) {
-        onsole.error('Login error:', err);
         return res.status(500).json({
             success: false,
             message: 'Cannot login right now.',
