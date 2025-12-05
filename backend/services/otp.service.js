@@ -33,7 +33,7 @@ async function issueOtpForUser(userId, email) {
 
     //simple rate limit : count OTPs in last hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const recentCount = await Otp.countDocuments({ user: userId, createdAT: { $gte: oneHourAgo } });
+    const recentCount = await Otp.countDocuments({ user: userId, createdAt: { $gte: oneHourAgo } });
 
     if (recentCount >= OTP_RATE_LIMIT) {
         const err = new Error("Too many request for OTP. Try again later");
@@ -51,7 +51,7 @@ async function issueOtpForUser(userId, email) {
         code,
         expiresAt,
         used: false,
-        createdAT: now,
+        createdAt: now,
     });
 
     //prepare email content
@@ -61,7 +61,7 @@ async function issueOtpForUser(userId, email) {
 
     //attempt to send the mail
     try {
-        const transporter = createTransporter();
+        const transporter = await createTransporter();
         await transporter.sendMail({
             from: MAIL_FROM,
             to: email,
@@ -86,7 +86,7 @@ async function verifyOtpForUser(userId, code) {
         throw new Error("userId and code are required");
     }
 
-    const otpDoc = await Otp.findOne({ user: userId, used: false }).sort({ createdAT: -1 });
+    const otpDoc = await Otp.findOne({ user: userId, used: false }).sort({ createdAt: -1 });
 
     if (!otpDoc) {
         const err = new Error("Invalid or expired OTP code");

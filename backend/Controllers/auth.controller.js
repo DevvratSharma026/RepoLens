@@ -2,7 +2,7 @@ const { default: bcrypt } = require("bcryptjs");
 const User = require("../models/User");
 const { issueOtpForUser, verifyOtpForUser } = require("../services/otp.service");
 
-exports.singup = async (req, res) => {
+exports.signup = async (req, res) => {
     try {
         const { firstName, lastName, email, password, confirmPassword } = req.body;
 
@@ -45,7 +45,13 @@ exports.singup = async (req, res) => {
                 password: hashedPassword,
                 isVerified: false
             });
-        } 
+        } else {
+            // Logic for updating existing unverified user (if desired)
+            existingUser.firstName = firstName;
+            existingUser.lastName = lastName;
+            existingUser.password = hashedPassword;
+            user = await existingUser.save();
+        }
         //call the otp service
         await issueOtpForUser(user._id, user.email);
 
