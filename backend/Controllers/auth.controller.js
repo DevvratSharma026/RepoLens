@@ -1,4 +1,3 @@
-const { bcryptjs } = require("bcryptjs");
 const bcrypt = require('bcrypt');
 const User = require("../models/User");
 const { issueOtpForUser, verifyOtpForUser } = require("../services/otp.service");
@@ -171,4 +170,11 @@ exports.login = async (req, res) => {
             message: 'Cannot login right now.',
         });
     }
+}
+
+exports.getMe = async (req, res) => {
+    return res.status(200).json({
+        success: true,
+        user: req.user
+    })
 }
