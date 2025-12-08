@@ -1,58 +1,96 @@
+// src/utils/langDetect.js
 const fs = require('fs');
 const path = require('path');
 
-//map file ext to lang name
+// extension -> language map
 const extensionToLanguage = {
-    ".js": "javascript",
-    ".jsx": "javascript",
-    ".ts": "typescript",
-    ".tsx": "typescript",
-    ".json": "json",
-    ".html": "html",
-    ".css": "css",
-    ".scss": "scss",
-    ".py": "python",
-    ".java": "java",
-    ".cpp": "cpp",
-    ".c": "c",
-    ".go": "go",
-    ".rb": "ruby",
-    ".php": "php",
-    ".swift": "swift",
-    ".rs": "rust",
-    ".kt": "kotlin",
-    ".md": "markdown"
+  ".js": "javascript",
+  ".mjs": "javascript",
+  ".cjs": "javascript",
+  ".jsx": "javascript",
+  ".ts": "typescript",
+  ".tsx": "typescript",
+  ".json": "json",
+  ".html": "html",
+  ".htm": "html",
+  ".css": "css",
+  ".scss": "scss",
+  ".py": "python",
+  ".java": "java",
+  ".cpp": "cpp",
+  ".c": "c",
+  ".go": "go",
+  ".rb": "ruby",
+  ".php": "php",
+  ".swift": "swift",
+  ".rs": "rust",
+  ".kt": "kotlin",
+  ".md": "markdown"
 };
 
-//recursively get all files from the folder
-function getAllFiles (dirPath, arrayOfFiles = []) {
-    const files = fs.readFileSync(dirPath);
+function getAllFiles(dirPath, arrayOfFiles = []) {
+  let entries;
+  try { entries = fs.readdirSync(dirPath); } catch { return arrayOfFiles; }
 
-    for(const file of files) {
-        const filePath = path.join(dirPath, file);
-        const stat = fs.statSync(filePath);
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry);
+    let stat;
+    try { stat = fs.statSync(fullPath); } catch { continue; }
 
-        if(stat.isDirectory()) {
-            getAllFiles(filePath, arrayOfFiles);
-        } else {
-            arrayOfFiles.push(filePath);
-        }
+    if (stat.isDirectory()) {
+      const base = entry.toLowerCase();
+      if (['node_modules', '.git', 'dist', 'build'].includes(base)) continue;
+      getAllFiles(fullPath, arrayOfFiles);
+    } else if (stat.isFile()) {
+      arrayOfFiles.push(fullPath);
     }
-    return arrayOfFiles;
+  }
+  return arrayOfFiles;
 }
 
-module.exports = function detectLanguage(folderPath) {
-    const allFiles = getAllFiles(folderPath);
-    const languageStat = {};
+function guessLanguageByContent(filePath) {
+  try {
+    const fd = fs.openSync(filePath, 'r');
+    const buf = Buffer.alloc(1024);
+    const bytes = fs.readSync(fd, buf, 0, 1024, 0);
+    fs.closeSync(fd);
+    const text = buf.slice(0, bytes).toString('utf8').trim();
+    if (!text) return null;
 
-    for(const file in allFiles) {
-        const ext = path.extname(file).toLocaleLowerCase();
-        const lang = extensionToLanguage[ext];
+    if (/^\s*#!/.test(text) && /node|nodejs/.test(text)) return 'javascript';
+    if (/^\s*<(?:!doctype|html)/i.test(text) || /<html/i.test(text)) return 'html';
+    if (/^\s*[{[]/.test(text) && /["']?\w+["']?\s*[:=]/.test(text)) return 'json';
+    if (/^\s*(import|export)\s+/.test(text) || /\bmodule\.exports\b/.test(text) || /\brequire\(/.test(text)) return 'javascript';
+    if (/\bfunction\b|\bconsole\.log\b/.test(text)) return 'javascript';
 
-        if(lang) {
-            const size = fs.statSync(file.size);
-            languageStat[lang] = (languageStat[lang] || 0) + size;
-        }
-    }
-    return languageStat;
+    return null;
+  } catch {
+    return null;
+  }
 }
+
+module.exports = function detectLanguages(folderPath) {
+  const languageStats = {};
+  if (!folderPath) return languageStats;
+
+  const allFiles = getAllFiles(folderPath);
+
+  for (const file of allFiles) {
+    try {
+      const ext = path.extname(file).toLowerCase();
+      let lang = extensionToLanguage[ext];
+      if (!lang) {
+        lang = guessLanguageByContent(file);
+      }
+      if (!lang) continue;
+
+      const size = fs.statSync(file).size;
+      languageStats[lang] = (languageStats[lang] || 0) + size;
+    } catch {
+      // skip unreadable files
+      continue;
+    }
+  }
+
+  return languageStats;
+};
