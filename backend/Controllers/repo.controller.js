@@ -1,5 +1,9 @@
 const unzip = require('../utils/unZip')
 const detectLanguage = require('../utils/langDetect')
+const path = require('path');
+const uploadFolderToS3 = require('../services/s3UploadFolder');
+const RepoSnapShot = require('../models/RepoSnapShot');
+const fs = require('fs/promises');
 
 exports.upload = async (req, res) => {
     try {
@@ -10,7 +14,6 @@ exports.upload = async (req, res) => {
                 message: "No ZIP file provided"
             });
         }
-        console.log('inside the repo controller');
 
         const zipPath = req.file.path;
         const originalname = req.file.originalname;
@@ -22,15 +25,46 @@ exports.upload = async (req, res) => {
         //2. detect the language
         const languageStats = detectLanguage(extractedPath);
 
-        //3. return results
+        //3. upload extracted folder to s3
+        const repoName = req.body.repoName || path.basename(extractedPath);
+        const ts = Date.now();
+        const keyPreFix = `snapshots/${userId || 'anon'}/${ts}`;
+
+        //upload folder to s3 -> s3uploadFolder
+        const s3Path = await uploadFolderToS3(extractedPath, keyPreFix);
+
+        //4.create a reposnapshot record in DB
+        const snapshot = await RepoSnapShot.create({
+            userId,
+            repoName,
+            s3Path,
+            languageStats,
+            originalName: originalname,
+            meta: {
+                keyPreFix,
+                uploadedFileName: originalname
+            },
+            createdAt: new Date(),
+        });
+
+        //5. remove the uploaded and extracted zip files
+        try {
+            await fs.rm(zipPath, {force: true});
+            //remove extracted folder recursively
+            await fs.rm(extractedPath, {recursive: true, force: true});
+        } catch(cleanupErr) {
+            console.warn('Cleanup error (non-fatel)', cleanupErr);
+        }
+
+        //6. return results
 
         //quick reply so frontend knows upload succeeded and mind the path
         return res.status(200).json({
             success: true,
-            message: "ZIP extracted and language detected (dev response)",
-            extractedPath,
+            message: "ZIP extracted and language and uploaded to s3",
+            snapshotId: snapshot._id,
+            s3Path,
             languageStats,
-            originalname,
             uploadedBy: userId
         });
     } catch( err ) {
