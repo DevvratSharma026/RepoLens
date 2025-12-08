@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 require('dotenv').config()
 
-exports.auth = async (req, res, next) => {
+module.exports = async function auth(req, res, next) {
     try {
         const token = req.cookies.token || req.headers.authorization?.startsWith('Bearer ');
 

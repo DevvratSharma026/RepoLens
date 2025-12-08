@@ -2,6 +2,7 @@ const express = require('express');
 const app = express()
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth.routes');
+const repoRoutes = require('./routes/repo.routes');
 
 require('dotenv').config();
 app.use(express.json());
@@ -14,6 +15,7 @@ connectDB();
 
 //routes
 app.use('/v1/api/auth', authRoutes);
+app.use('/v1/api', repoRoutes);
 
 app.get('/', (req, res) => {
     res.send("backend is running...");
