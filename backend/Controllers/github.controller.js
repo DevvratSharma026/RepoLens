@@ -4,6 +4,7 @@ const detectLanguage = require("../utils/langDetect");
 const uploadFolderToS3 = require("../services/s3UploadFolder");
 const RepoSnapshot = require('../models/RepoSnapShot');
 const path = require('path');
+const cleanupPath = require('../utils/cleanup');
 
 exports.createSnapshotFromGitHub = async (req, res) => {
     try {
@@ -58,5 +59,8 @@ exports.createSnapshotFromGitHub = async (req, res) => {
             message: "Failed to create snapshot from github",
             error: err.message
         });
+    } finally {
+        await cleanupPath(zipPath);
+        await cleanupPath(extractedPath);
     }
 }
