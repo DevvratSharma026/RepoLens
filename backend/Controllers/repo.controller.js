@@ -4,6 +4,7 @@ const path = require('path');
 const uploadFolderToS3 = require('../services/s3UploadFolder');
 const RepoSnapShot = require('../models/RepoSnapShot');
 const fs = require('fs/promises');
+const cleanupPath = require('../utils/cleanup');
 
 exports.upload = async (req, res) => {
     try {
@@ -49,9 +50,8 @@ exports.upload = async (req, res) => {
 
         //5. remove the uploaded and extracted zip files
         try {
-            await fs.rm(zipPath, {force: true});
-            //remove extracted folder recursively
-            await fs.rm(extractedPath, {recursive: true, force: true});
+            await cleanupPath(zipPath);
+            await cleanupPath(extractedPath);
         } catch(cleanupErr) {
             console.warn('Cleanup error (non-fatel)', cleanupErr);
         }
