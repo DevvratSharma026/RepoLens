@@ -14,10 +14,23 @@ const s3 = new S3Client({
 function streamToFile(readable, filePath) {
     return new Promise((resolve, reject) => {
         const writeStream = fs.createWriteStream(filePath);
+        
+        // Handle errors from both streams
+        readable.on('error', (err) => {
+            writeStream.destroy();
+            reject(err);
+        });
+        writeStream.on('error', (err) => {
+            readable.destroy();
+            reject(err);
+        });
+        
+        // Wait for writeStream to finish (not readable - readable doesn't emit 'finish')
+        writeStream.on('finish', resolve);
+        writeStream.on('close', resolve);
+        
+        // Pipe the readable stream to the write stream
         readable.pipe(writeStream);
-        readable.on('error', reject);
-        readable.on('finish', resolve);
-        writeStream.on('error', reject);
     });
 }
 
@@ -55,7 +68,6 @@ async function downloadSnapshotFromS3( { bucket, prefix, reviewId } ) {
 
             const fileResp = await s3.send(getCmd);
             await streamToFile(fileResp.Body, localFilePath);
-
             downloadFiles++;
         }
         continuationToken = listResp.IsTruncated

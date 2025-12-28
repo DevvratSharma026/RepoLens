@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.0",
     "multer": "^2.0.2",
+    "node-fetch": "^2.7.0",
     "unzipper": "^0.12.3"
   }
 }

@@ -1,11 +1,19 @@
 //worker needs all the things that our express app need
 require('dotenv').config();
 const mongoose = require('mongoose');
+const fs = require('fs');
 const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 
 const ReviewRequest = require('../models/ReviewRequest');
 const RepoSnapShot = require('../models/RepoSnapShot');
 
+const path = require('path');
+const { downloadSnapshotFromS3 } = require('../services/s3DownloadSnapshot');
+const { selectFiles } = require('../services/fileSelect.service');
+const { chunkFiles } = require('../services/chunker.service');
+const { reviewChunkWithLLM, validateConfig: validateLLMConfig } = require('../services/llm.service');
+const { aggregateChunkResults } = require('../services/aggregation.service');
+const { tmpdir } = require('os');
 
 const MONGO_URI = process.env.MONGO_URI;
 const s3_Bucket = process.env.S3_BUCKET;
@@ -63,25 +71,77 @@ async function listObjects(bucket, prefix) {
 }
 
 //minimal "review" that inspects snapshot files and returns a summary object
-async function runReviewForSnapshot(snapShot) {
+async function runReviewForSnapshot({ snapShot, reviewId }) {
+    if (!reviewId) {
+        throw new Error('reviewId missing in runreviewforsnapshot');
+    }
+    //1. parse S3 URI
     const parsed = pasresS3Uri(snapShot.s3Path);
     if (!parsed) throw new Error("Invalid s3 path on snapshot");
 
-    const bucket = parsed.bucket;
-    const prefix = parsed.prefix;
+    //2. download snapshot to local workspace
+    const workspace = await downloadSnapshotFromS3({
+        bucket: parsed.bucket,
+        prefix: parsed.prefix,
+        reviewId
+    });
 
-    const objects = await listObjects(bucket, prefix);
+    try {
+        // Validate LLM config before processing
+        validateLLMConfig();
 
-    //placeholder review result
-    const result = {
-        fileCount: objects.length,
-        totalBytes: objects.reduce((s, o) => s + (o.Size || 0), 0),
-        topLanguages: snapShot.languageStats || {},
-        sampleFiles: objects.slice(0, 10).map(o => o.Key),
-        notes: 'Placeholder review: replace with your LLM-based analysis',
-    };
+        //3. select eligible files
+        const files = selectFiles({ baseDir: workspace.localPath });
+        if (files.length === 0) {
+            throw new Error('No eligible files found in snapshot');
+        }
 
-    return result;
+        //4. chunk files
+        const { chunks, truncated } = chunkFiles({ files });
+
+        if (chunks.length === 0) {
+            throw new Error('No chunks created from files');
+        }
+
+        //5. Review each chunk with LLM 
+        const chunkResults = [];
+        let successfulChunks = 0;
+        const chunkErrors = [];
+
+        for (const chunk of chunks) {
+            try {
+                const res = await reviewChunkWithLLM(chunk);
+                chunkResults.push(res);
+                successfulChunks++;
+            } catch (err) {
+                console.error(`[LLM] chunk failed: ${chunk.filePath} (${chunk.chunkIndex + 1}/${chunk.totalChunks}) - ${err.message}`);
+                chunkErrors.push({ chunk: chunk.filePath, error: err.message });
+            }
+        }
+
+        if (successfulChunks === 0) {
+            const errorSummary = chunkErrors.length > 0 
+                ? ` All chunks failed. First error: ${chunkErrors[0].error}` 
+                : ' No chunks were processed.';
+            throw new Error(`All LLM chunks reviews failed.${errorSummary}`);
+        }
+
+        //6. aggregate results
+        const result = aggregateChunkResults({
+            chunkResults,
+            meta: {
+                filesReviewed: files.length,
+                chunkAnalyzed: successfulChunks,
+                languages: Object.keys(snapShot.languageStats || {}),
+                truncated
+            }
+        });
+        return result;
+    } finally {
+        //7. clenaup always
+        const tmpDir = path.join(process.cwd(), 'tmp', 'worker', reviewId.toString());
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
 }
 
 //claim + process one pending request
@@ -104,14 +164,12 @@ async function ProcessOnePending() {
         if (!snapShot) throw new Error("snapShot not found");
 
         //run the review pipeline
-        const reviewResult = await runReviewForSnapshot(snapShot);
+        const reviewResult = await runReviewForSnapshot({ snapShot, reviewId: reviewReq._id });
 
         //persist result and mark completed
         reviewReq.status = 'completed';
-        reviewReq.result = {
-            ...reviewReq,
-            finishedAt: new Date(),
-        }
+        reviewReq.result = reviewResult;
+        reviewReq.finishedAt = new Date();
 
         await reviewReq.save();
 
@@ -127,7 +185,7 @@ async function ProcessOnePending() {
                 finishedAt: new Date(),
             };
             await reviewReq.save();
-        } catch(saveErr) {
+        } catch (saveErr) {
             console.error('worker failed while saving failed status', saveErr.message);;
         }
         return reviewReq;
@@ -139,6 +197,7 @@ async function ProcessOnePending() {
 let shuttingDown = false;
 async function pollingLoop() {
     console.log('Worker starting polling loop, interval ms =', POLL_INTERVAL_MS);
+
     while (!shuttingDown) {
         try {
             const processed = await ProcessOnePending();
@@ -164,7 +223,7 @@ async function shutdown() {
     try {
         await mongoose.disconnect();
         console.log('worker mongo disconnected');
-    } catch(err) {
+    } catch (err) {
         console.warn('worker error during the mongo disconnect', err.message);
     }
     process.exit(1);
