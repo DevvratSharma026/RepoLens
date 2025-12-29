@@ -57,10 +57,19 @@ exports.getReview = async (req, res) => {
             });
         }
 
+        // Validate ObjectId format
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid reviewId format"
+            });
+        }
+
         //populate snapshot info (lean for performance)
         const review = await ReviewRequest.findById(reviewId).lean().populate({
             path: 'snapShotId',
-            select: 'repoName s3 langugageStats originalName meta createdAt',
+            select: 'repoName s3Path languageStats meta createdAt',
         });
 
         if (!review) {

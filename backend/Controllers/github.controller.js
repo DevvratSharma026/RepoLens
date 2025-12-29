@@ -7,6 +7,9 @@ const path = require('path');
 const cleanupPath = require('../utils/cleanup');
 
 exports.createSnapshotFromGitHub = async (req, res) => {
+    let zipPath = null;
+    let extractedPath = null;
+    
     try {
         const {repoUrl} = req.body;
         const userId = req.user ? req.user._id : null;
@@ -19,10 +22,10 @@ exports.createSnapshotFromGitHub = async (req, res) => {
         }
 
         //1. download github zip reop zip to tmp
-        const zipPath = await fetchGitHubUrl(repoUrl);
+        zipPath = await fetchGitHubUrl(repoUrl);
 
         //2. unzip (reuse existing util)
-        const extractedPath = await unZip(zipPath);
+        extractedPath = await unZip(zipPath);
 
         //3. language detection
         const languageStats = detectLanguage(extractedPath);
@@ -60,7 +63,8 @@ exports.createSnapshotFromGitHub = async (req, res) => {
             error: err.message
         });
     } finally {
-        await cleanupPath(zipPath);
+        // Cleanup extracted files and zip file
         await cleanupPath(extractedPath);
+        await cleanupPath(zipPath);
     }
 }

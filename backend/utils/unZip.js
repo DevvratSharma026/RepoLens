@@ -1,7 +1,6 @@
 const unzipper = require('unzipper');
 const fs = require('fs');
 const path = require('path');
-const { error } = require('console');
 
 module.exports = async function unzipFile(zipPath) {
     try {
@@ -19,5 +18,7 @@ module.exports = async function unzipFile(zipPath) {
     } catch (err) {
         console.error("unzip error", err)
         throw new Error("Failed to unzip file");
+    } finally {
+
     }
 }

@@ -14,7 +14,7 @@ const reposnapshotSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    languageStat: {
+    languageStats: {
         type: Object,
         default: {}
     },

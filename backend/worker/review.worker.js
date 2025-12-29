@@ -138,9 +138,15 @@ async function runReviewForSnapshot({ snapShot, reviewId }) {
         });
         return result;
     } finally {
-        //7. clenaup always
+        //7. cleanup always - remove downloaded files from local storage
         const tmpDir = path.join(process.cwd(), 'tmp', 'worker', reviewId.toString());
-        fs.rmSync(tmpDir, { recursive: true, force: true });
+        try {
+            if (fs.existsSync(tmpDir)) {
+                fs.rmSync(tmpDir, { recursive: true, force: true });
+            }
+        } catch (cleanupErr) {
+            console.warn(`[worker] failed to cleanup tmp directory: ${tmpDir}`, cleanupErr.message);
+        }
     }
 }
 
