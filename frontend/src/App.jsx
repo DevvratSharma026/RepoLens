@@ -1,9 +1,19 @@
+import {Route, Routes, Navigate} from 'react-router-dom'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import VerifyOtp from './pages/VerifyOtp'
+
 function App() {
 
   return (
-    <div className="bg-blue-300">
-      <h1 className="text-2xl font-bold">Ai code reviewer</h1>
-    </div>
+    <Routes>
+      <Route path='/login' element={<Login/>} />
+      <Route path='/signup' element={<Signup/>} />
+      <Route path='/verify-otp' element={<VerifyOtp />} />
+
+      {/* tmp default Route */}
+      <Route path='/login' element={<Login />} />
+    </Routes>
   )
 }
 
