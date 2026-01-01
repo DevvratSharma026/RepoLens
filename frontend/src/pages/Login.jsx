@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { login } from '../api/auth.api';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -15,7 +18,7 @@ const Login = () => {
         try {
             const response = await login({ email, password });
             localStorage.setItem('token', response.token);
-            console.log('Login successful', response.user)
+            navigate('/dashboard');
         } catch (error) {
             setError(error.message);
         } finally {
@@ -36,7 +39,7 @@ const Login = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                             <input
-                                className='w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
+                                className='text-black w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
                                 type='email'
                                 placeholder='name@company.com'
                                 value={email}
@@ -47,7 +50,7 @@ const Login = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                             <input
-                                className='w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
+                                className='text-black w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
                                 type='password'
                                 placeholder='••••••••'
                                 value={password}

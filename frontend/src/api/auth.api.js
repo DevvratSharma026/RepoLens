@@ -14,3 +14,8 @@ export const verifyOtp = async ({email, code}) => {
     const response = await clientAPI.post('/auth/verify-otp', {email, code});
     return response.data;
 }
+
+export const getMe = async () => {
+    const response = await clientAPI.get('/auth/me');
+    return response.data;
+}

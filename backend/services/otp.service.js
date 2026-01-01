@@ -57,7 +57,53 @@ async function issueOtpForUser(userId, email) {
     //prepare email content
     const subject = "Your verification OTP";
     const text = `Your verification code is ${code}. It expires in ${OTP_TTL_MIN} minutes.`;
-    const html = `<p>Your verification code is <strong>${code}</strong></p>`;
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Email</title>
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f9fafb; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb; }
+    .header { background-color: #4f46e5; padding: 32px; text-align: center; }
+    .content { padding: 40px; text-align: center; }
+    .logo { font-size: 24px; font-weight: bold; color: #ffffff; letter-spacing: -1px; }
+    .title { font-size: 24px; font-weight: 700; color: #111827; margin-bottom: 16px; }
+    .text { font-size: 16px; color: #4b5563; line-height: 24px; margin-bottom: 32px; }
+    .code-container { background-color: #f3f4f6; border-radius: 8px; padding: 24px; margin-bottom: 32px; border: 1px dashed #d1d5db; }
+    .code { font-family: 'Monaco', 'Consolas', monospace; font-size: 36px; font-weight: 800; color: #4f46e5; letter-spacing: 8px; }
+    .footer { padding: 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af; }
+    .link { color: #4f46e5; text-decoration: none; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">SAAS LOGO</div>
+    </div>
+    <div class="content">
+      <h1 class="title">Verify your email address</h1>
+      <p class="text">Thanks for signing up! To finish creating your account, please enter the following verification code in your browser:</p>
+      
+      <div class="code-container">
+        <span class="code">${code}</span>
+      </div>
+      
+      <p class="text" style="font-size: 14px;">This code will expire in 10 minutes. If you didn't request this email, you can safely ignore it.</p>
+    </div>
+    <div class="footer">
+      <p>&copy; ${new Date().getFullYear()} Your Company Inc. All rights reserved.</p>
+      <p>
+        <a href="#" class="link">Privacy Policy</a> • 
+        <a href="#" class="link">Support</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`;
 
     //attempt to send the mail
     try {
