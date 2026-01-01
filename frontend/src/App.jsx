@@ -4,6 +4,7 @@ import Signup from './pages/Signup'
 import VerifyOtp from './pages/VerifyOtp'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
+import NewReview from './pages/NewReview'
 
 function App() {
 
@@ -15,6 +16,11 @@ function App() {
       <Route path='/dashboard' element={
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path='/review/new' element={
+        <ProtectedRoute>
+          <NewReview />
         </ProtectedRoute>
       } />
 

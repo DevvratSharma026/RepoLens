@@ -56,7 +56,7 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <NewReviewButton props={"+ New Review"} />
+          <NewReviewButton props={"+ New Review"} onClick={() => navigate("/review/new")} />
 
         </div>
       </header>

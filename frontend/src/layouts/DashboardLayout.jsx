@@ -15,7 +15,7 @@ const DashboardLayout = ({ children, user, onLogout }) => {
                 </div>
 
                 <div className='px-4'>
-                    <NewReviewButton props={"+ New Review"} />
+                    <NewReviewButton props={"+ New Review"} onClick={() => navigate("/review/new")} />
                 </div>
 
                 <nav>
