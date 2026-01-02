@@ -13,7 +13,6 @@ const { selectFiles } = require('../services/fileSelect.service');
 const { chunkFiles } = require('../services/chunker.service');
 const { reviewChunkWithLLM, validateConfig: validateLLMConfig } = require('../services/llm.service');
 const { aggregateChunkResults } = require('../services/aggregation.service');
-const { tmpdir } = require('os');
 
 const MONGO_URI = process.env.MONGO_URI;
 const s3_Bucket = process.env.S3_BUCKET;
@@ -38,7 +37,7 @@ async function connectDB() {
 }
 
 //helper function to parse s3://bucket/prefix/ into {bucket, prefix}
-function pasresS3Uri(s3uri) {
+function parsesS3Uri(s3uri) {
     if (!s3uri || !s3uri.startsWith('s3://')) return null;
 
     const without = s3uri.replace('s3://', '');
@@ -76,7 +75,7 @@ async function runReviewForSnapshot({ snapShot, reviewId }) {
         throw new Error('reviewId missing in runreviewforsnapshot');
     }
     //1. parse S3 URI
-    const parsed = pasresS3Uri(snapShot.s3Path);
+    const parsed = parsesS3Uri(snapShot.s3Path);
     if (!parsed) throw new Error("Invalid s3 path on snapshot");
 
     //2. download snapshot to local workspace
@@ -236,7 +235,7 @@ async function shutdown() {
 }
 
 process.on('SIGINT', shutdown);
-process.on('SIGNTERM', shutdown);
+process.on('SIGTERM', shutdown);
 
 //main loop
 (async function main() {

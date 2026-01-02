@@ -5,6 +5,9 @@ import VerifyOtp from './pages/VerifyOtp'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import NewReview from './pages/NewReview'
+import ReviewUpload from './pages/ReviewUpload'
+import ReviewCreate from './pages/ReviewCreate'
+import ReviewStatus from './pages/ReviewStatus'
 
 function App() {
 
@@ -21,6 +24,24 @@ function App() {
       <Route path='/review/new' element={
         <ProtectedRoute>
           <NewReview />
+        </ProtectedRoute>
+      } />
+
+      <Route path='/review/upload' element={
+        <ProtectedRoute>
+          <ReviewUpload />
+        </ProtectedRoute> 
+      } />
+
+      <Route path='/review/create/:snapshotId' element={
+        <ProtectedRoute>
+          <ReviewCreate />
+        </ProtectedRoute>
+      } />
+
+      <Route path='/review/:reviewId' element={
+        <ProtectedRoute>
+          <ReviewStatus />
         </ProtectedRoute>
       } />
 
