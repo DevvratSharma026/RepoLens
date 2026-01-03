@@ -1,9 +1,30 @@
 @import "tailwindcss";
 
+@theme {
+  /* Background colors */
+  --color-bg: #0B0B0F;
+  --color-bg-secondary: #111118;
+  --color-bg-card: #14141D;
+  --color-bg-border: #1F1F2A;
+  
+  /* Primary colors */
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  
+  /* Text colors */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #71717A;
+  
+  /* Status colors */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+}
+
 html,
 body,
 #root {
   height: 100%;
   background-color: #0B0B0F; /* bg.DEFAULT */
-    color: #E4E4E7; /* text-primary */
+  color: #E4E4E7; /* text-primary */
 }
