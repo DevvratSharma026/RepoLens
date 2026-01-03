@@ -8,6 +8,7 @@ import NewReview from './pages/NewReview'
 import ReviewUpload from './pages/ReviewUpload'
 import ReviewCreate from './pages/ReviewCreate'
 import ReviewStatus from './pages/ReviewStatus'
+import ReviewGithub from './pages/ReviewGithub'
 
 function App() {
 
@@ -42,6 +43,12 @@ function App() {
       <Route path='/review/:reviewId' element={
         <ProtectedRoute>
           <ReviewStatus />
+        </ProtectedRoute>
+      } />
+
+      <Route path='/review/github' element={
+        <ProtectedRoute>
+          <ReviewGithub />
         </ProtectedRoute>
       } />
 
