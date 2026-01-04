@@ -146,7 +146,7 @@ const ReviewUpload = () => {
                             <button 
                                 type="submit"
                                 disabled={loading || !file}
-                                className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-[50%] justify-center"
                             >
                                 {loading ? (
                                     <>
@@ -165,7 +165,7 @@ const ReviewUpload = () => {
                             <button
                                 type="button"
                                 onClick={() => navigate('/review/new')}
-                                className="px-6 py-3 border border-bg-border text-text-secondary hover:text-text-primary hover:border-primary/50 rounded-lg font-medium transition-colors"
+                                className="px-6 py-3 border border-bg-border text-text-secondary hover:text-text-primary hover:border-primary/50 rounded-lg font-medium transition-colors w-[50%]"
                             >
                                 Cancel
                             </button>
