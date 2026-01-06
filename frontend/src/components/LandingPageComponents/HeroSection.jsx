@@ -20,7 +20,7 @@ const HeroSection = () => {
   const codeLines = sampleCode.split('\n');
 
   return (
-    <div className='h-screen w-full'>
+    <div className='h-screen w-full mt-2'>
       <div className='relative h-screen w-full bg-cover bg-center' style={{ backgroundImage: `url(${heroImage})` }}>
 
         <div className='absolute inset-0' style={{ backgroundColor: 'rgba(0,0,0,0.65)' }} />

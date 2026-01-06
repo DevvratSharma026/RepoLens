@@ -2,8 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const Navbar = () => {
-  return (
-    <div className='flex flex-row justify-around items-center bg-black/10 py-4 '>
+    return (
+        <div role="navigation" className='fixed top-0 left-0 right-0 z-50 flex flex-row justify-around items-center bg-black/60 backdrop-blur-sm py-4'>
         {/* section 1 -> logo, name */}
         <div>
             <h1 className='text-2xl font-bold bg-linear-to-r from-blue-700 to-violet-400 bg-clip-text text-transparent'>Code Nexus</h1>
