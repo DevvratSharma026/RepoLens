@@ -1,6 +1,7 @@
 import React from 'react'
 import heroImage from "../../assets/HeroImage.png";
 import { FaArrowRight } from "react-icons/fa";
+import { Link } from 'react-router-dom';
 
 const sampleCode = `function processData(data) {
   // AI suggests: Consider adding null check
@@ -32,7 +33,7 @@ const HeroSection = () => {
             <p className='text-gray-300 text-xl mt-3'>Automatically review your code, detect issues, suggest improvements, and get better folder structure recommendations — all powered by AI.</p>
 
             <div className='mt-6 flex items-center gap-4'>
-              <button className="px-8 py-3 bg-linear-to-r from-purple-600 to-purple-500 text-white text-lg font-semibold rounded-lg shadow-lg flex items-center gap-2">Get Started Free <FaArrowRight /></button>
+              <Link to={'/login'} className="group px-8 py-3 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 transition-all duration-300 text-white text-lg font-semibold rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center gap-2">Get Started Free <FaArrowRight className="group-hover:translate-x-1 transition-transform"/></Link>
             </div>
           </div>
 

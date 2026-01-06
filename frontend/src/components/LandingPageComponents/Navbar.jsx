@@ -10,7 +10,7 @@ const Navbar = () => {
         </div>
 
         {/* section 2 -> nav links */}
-        <div className='flex flex-col items-center justify-center'>
+        <div className='flex flex-col items-center justify-center cursor-pointer'>
             <ul className='flex gap-16'>
                 <Link className='text-gray-500 hover:underline hover:scale-105 hover:text-blue-500 hover:transition' to="/features">Features</Link>
                 <Link className='text-gray-500 hover:underline hover:scale-105 hover:text-blue-500 hover:transition' to="/pricing">Pricing</Link>
@@ -19,7 +19,7 @@ const Navbar = () => {
         </div>
 
         {/* section 3 -> login/signup buttons */}
-        <div className='flex gap-3'>
+        <div className='flex gap-3 cursor-pointer'>
             <div className=' py-2 px-3 hover:bg-white/10 hover:rounded-md'>
                 <Link to="/login">Login</Link>
             </div>
