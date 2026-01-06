@@ -1,8 +1,13 @@
 import React from 'react'
+import Navbar from '../components/LandingPageComponents/Navbar'
+import HeroSection from '../components/LandingPageComponents/HeroSection'
 
 const LandingPage = () => {
   return (
-    <div>LandingPage</div>
+    <div className='h-screen w-full'>
+      <Navbar />
+      <HeroSection />
+    </div>
   )
 }
 
