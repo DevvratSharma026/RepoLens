@@ -2,6 +2,7 @@ import React from 'react'
 import Navbar from '../components/LandingPageComponents/Navbar'
 import HeroSection from '../components/LandingPageComponents/HeroSection'
 import HeroSectionTwo from '../components/LandingPageComponents/HeroSectionTwo'
+import Footer from '../components/LandingPageComponents/Footer'
 
 const LandingPage = () => {
   return (
@@ -9,6 +10,7 @@ const LandingPage = () => {
       <Navbar />
       <HeroSection />
       <HeroSectionTwo />
+      <Footer />
     </div>
   )
 }

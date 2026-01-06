@@ -43,7 +43,7 @@ const Signup = () => {
   };
 
   return (
-    <div className='min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-6 lg:px-8'>
+    <div className='min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-6 lg:px-8 text-black'>
       <div className='sm:mx-auto sm:w-full sm:max-w-md'>
         <h2 className='text-center text-3xl font-extrabold text-gray-900 tracking-tight'>
           Create your account
