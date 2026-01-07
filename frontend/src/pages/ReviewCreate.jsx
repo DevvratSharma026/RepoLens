@@ -13,7 +13,6 @@ const ReviewCreate = () => {
       const startReview = async () =>{
         try {
           const response = await createReview(snapshotId);
-          console.log("review created", response);
 
           navigate(`/review/${response.reviewId}`);
         } catch(err) {

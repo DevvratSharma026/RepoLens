@@ -11,14 +11,18 @@ import ReviewStatus from './pages/ReviewStatus'
 import ReviewGithub from './pages/ReviewGithub'
 import LandingPage from './pages/LandingPage'
 import NotFound from './pages/NotFound'
+import { useAuth } from './context/AuthContext'
+import AuthRedirect from './components/AuthRedirect'
 
 function App() {
 
+  const {isAuthenticated, loading} = useAuth();
+
   return (
     <Routes>
-      <Route path='/login' element={<Login/>} />
-      <Route path='/signup' element={<Signup/>} />
-      <Route path='/verify-otp' element={<VerifyOtp />} />
+      <Route path='/login' element={<AuthRedirect><Login/></AuthRedirect>} />
+      <Route path='/signup' element={<AuthRedirect><Signup/></AuthRedirect>} />
+      <Route path='/verify-otp' element={<AuthRedirect><VerifyOtp /></AuthRedirect>} />
       <Route path='/dashboard' element={
         <ProtectedRoute>
           <Dashboard />

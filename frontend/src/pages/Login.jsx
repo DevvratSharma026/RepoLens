@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { login } from '../api/auth.api';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/loginVideo.mp4'
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -9,6 +10,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const {login: setAuthUser} = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -16,7 +18,7 @@ const Login = () => {
         setError(null);
         try {
             const response = await login({ email, password });
-            localStorage.setItem('token', response.token);
+            setAuthUser(response.user);
             navigate('/dashboard');
         } catch (error) {
             setError(error.message);

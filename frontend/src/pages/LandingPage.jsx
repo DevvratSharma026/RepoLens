@@ -4,23 +4,17 @@ import HeroSection from '../components/LandingPageComponents/HeroSection'
 import HeroSectionTwo from '../components/LandingPageComponents/HeroSectionTwo'
 import Footer from '../components/LandingPageComponents/Footer'
 import { useNavigate } from 'react-router-dom'
-import { getMe } from '../api/auth.api'
+import { useAuth } from '../context/AuthContext'
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await getMe();
-        if(response.token) {
-          navigate('/dashboard');
-        }
-      } catch(err) {
+  const { isAuthenticated, loading } = useAuth();
 
-      }
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      navigate('/dashboard');
     }
-  })
+  }, [loading, isAuthenticated, navigate]);
 
   return (
     <div className='h-screen w-full'>

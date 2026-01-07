@@ -79,7 +79,6 @@ async function fetchGitHubUrl(repoUrl, options = {}) {
     let lastError = null;
     for(const url of candidates) {
         try {
-            console.log('[githubFetch] trying: ', url);
             //quick HEAD check to avoid large downloads of 404 pages 
             const response = await axios({
                 method: 'GET',

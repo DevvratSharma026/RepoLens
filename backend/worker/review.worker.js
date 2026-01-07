@@ -33,7 +33,6 @@ const s3 = new S3Client({
 //connect to mongoose to fetch the pending request
 async function connectDB() {
     await mongoose.connect(MONGO_URI);
-    console.log("MonogDB connected")
 }
 
 //helper function to parse s3://bucket/prefix/ into {bucket, prefix}
@@ -161,8 +160,6 @@ async function ProcessOnePending() {
 
     if (!reviewReq) return null;
 
-    console.log(`worker claimed review ${reviewReq._id.toString()}`);
-
     try {
         //load the snapshot
         const snapShot = await RepoSnapShot.findById(reviewReq.snapShotId).lean();
@@ -177,11 +174,8 @@ async function ProcessOnePending() {
         reviewReq.finishedAt = new Date();
 
         await reviewReq.save();
-
-        console.log(`worker completed review ${reviewReq._id.toString()}`);
         return reviewReq;
     } catch (err) {
-        console.log(`worker error processing ${reviewReq._id.toString()}`, err.message);
         //mark as failed 
         try {
             reviewReq.status = 'failed';
@@ -201,7 +195,6 @@ async function ProcessOnePending() {
 //polling loop
 let shuttingDown = false;
 async function pollingLoop() {
-    console.log('Worker starting polling loop, interval ms =', POLL_INTERVAL_MS);
 
     while (!shuttingDown) {
         try {
@@ -222,12 +215,10 @@ async function pollingLoop() {
 
 //shutdown handler
 async function shutdown() {
-    console.log('worker shutting down...');
 
     shuttingDown = true;
     try {
         await mongoose.disconnect();
-        console.log('worker mongo disconnected');
     } catch (err) {
         console.warn('worker error during the mongo disconnect', err.message);
     }
