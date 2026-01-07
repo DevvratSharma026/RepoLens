@@ -10,25 +10,25 @@ const FooterSectionTwo = () => {
         {
             title: "Company",
             links: [
-                { name: "About Us", href: "/about" },
-                { name: "Careers", href: "/careers" },
-                { name: "Brand Center", href: "/brand" },
+                { name: "About Us", href: "*" },
+                { name: "Careers", href: "*" },
+                { name: "Brand Center", href: "*" },
             ],
         },
         {
             title: "Support",
             links: [
-                { name: "Help Center", href: "/help" },
-                { name: "Safety Center", href: "/safety" },
-                { name: "Community Guidelines", href: "/community" },
+                { name: "Help Center", href: "*" },
+                { name: "Safety Center", href: "*" },
+                { name: "Community Guidelines", href: "/*" },
             ],
         },
         {
             title: "Legal",
             links: [
-                { name: "Privacy Policy", href: "/privacy" },
-                { name: "Terms of Service", href: "/terms" },
-                { name: "Cookie Policy", href: "/cookies" },
+                { name: "Privacy Policy", href: "*" },
+                { name: "Terms of Service", href: "*" },
+                { name: "Cookie Policy", href: "*" },
             ],
         },
     ]

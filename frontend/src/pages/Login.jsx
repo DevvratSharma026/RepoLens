@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { login } from '../api/auth.api';
 import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../assets/loginVideo.mp4'
 
 const Login = () => {
-
     const navigate = useNavigate();
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -27,30 +26,48 @@ const Login = () => {
     };
 
     return (
-        <div className='min-h-screen flex items-center justify-center bg-gray-50 px-4'>
-            <div className='max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-black shadow-lg border border-gray-100'>
+        /* 1. Added 'relative' and 'overflow-hidden' */
+        <div className='relative min-h-screen flex items-center justify-center px-4 overflow-hidden'>
+            
+            {/* 2. Background Video Element */}
+            <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                className="absolute inset-0 w-full h-full object-cover z-0"
+            >
+                <source src={backgroundImage} type="video/mp4" />
+            </video>
+
+            {/* 3. Optional: Dark Overlay to make text pop */}
+            <div className="absolute inset-0 bg-black/40 z-10"></div>
+
+            {/* 4. Content - Added 'z-20' to stay above video and overlay */}
+            <div className='relative z-20 max-w-md w-full space-y-8 p-8 rounded-xl shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100'>
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-                    <p className="mt-2 text-sm text-gray-600">Please enter your details</p>
+                    <h2 className="text-3xl font-bold text-gray-200">Welcome back</h2>
+                    <p className="mt-2 text-sm text-gray-300">Please enter your details</p>
+                    {error && <p className="text-red-400 mt-2 text-sm">{error}</p>}
                 </div>
-    
+
                 <form onSubmit={handleSubmit} className='mt-8 space-y-6'>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <label className="block text-sm font-medium text-white mb-1">Email Address</label>
                             <input
-                                className='text-black w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
+                                className='w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
                                 type='email'
-                                placeholder='name@company.com'
+                                placeholder='name@gmail.com'
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <label className="block text-sm font-medium text-white mb-1">Password</label>
                             <input
-                                className='text-black w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
+                                className='w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all placeholder:text-gray-400'
                                 type='password'
                                 placeholder='••••••••'
                                 value={password}
@@ -59,9 +76,9 @@ const Login = () => {
                             />
                         </div>
                     </div>
-    
-                    <button 
-                        type='submit' 
+
+                    <button
+                        type='submit'
                         disabled={loading}
                         className='w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center'
                     >
@@ -76,9 +93,9 @@ const Login = () => {
                         ) : 'Login'}
                     </button>
                 </form>
-                
-                <p className="text-center text-sm text-gray-500">
-                    Don't have an account? <a href="#" className="text-indigo-600 font-medium hover:underline">Sign up</a>
+
+                <p className="text-center text-sm text-gray-300">
+                    Don't have an account? <a href="/signup" className="text-indigo-400 font-medium hover:underline">Sign up</a>
                 </p>
             </div>
         </div>

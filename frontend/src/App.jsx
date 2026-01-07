@@ -10,6 +10,7 @@ import ReviewCreate from './pages/ReviewCreate'
 import ReviewStatus from './pages/ReviewStatus'
 import ReviewGithub from './pages/ReviewGithub'
 import LandingPage from './pages/LandingPage'
+import NotFound from './pages/NotFound'
 
 function App() {
 
@@ -56,7 +57,7 @@ function App() {
       <Route path='/' element={<LandingPage />} />
 
       {/* tmp default Route */}
-      <Route path='/login' element={<Login />} />
+      <Route path='*' element={<NotFound />} />
     </Routes>
   )
 }
