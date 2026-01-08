@@ -46,7 +46,7 @@ const Login = () => {
             <div className="absolute inset-0 bg-black/40 z-10"></div>
 
             {/* 4. Content - Added 'z-20' to stay above video and overlay */}
-            <div className='relative z-20 max-w-md w-full space-y-8 p-8 rounded-xl shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100'>
+            <div className='relative z-20 max-w-md w-full space-y-8 p-8 rounded-xl shadow-white shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100'>
                 <div className="text-center">
                     <h2 className="text-3xl font-bold text-gray-200">Welcome back</h2>
                     <p className="mt-2 text-sm text-gray-300">Please enter your details</p>
