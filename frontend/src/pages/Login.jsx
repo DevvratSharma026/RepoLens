@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { login } from '../api/auth.api';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/loginVideo.mp4'
 import { useAuth } from '../context/AuthContext';
 
@@ -97,7 +97,7 @@ const Login = () => {
                 </form>
 
                 <p className="text-center text-sm text-gray-300">
-                    Don't have an account? <a href="/signup" className="text-indigo-400 font-medium hover:underline">Sign up</a>
+                    Don't have an account? <Link to="/signup" className="text-indigo-400 font-medium hover:underline">Sign up</Link>
                 </p>
             </div>
         </div>

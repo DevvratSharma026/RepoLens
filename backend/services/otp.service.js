@@ -81,7 +81,7 @@ async function issueOtpForUser(userId, email) {
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">SAAS LOGO</div>
+      <div class="logo">Code Nexus</div>
     </div>
     <div class="content">
       <h1 class="title">Verify your email address</h1>
@@ -91,7 +91,7 @@ async function issueOtpForUser(userId, email) {
         <span class="code">${code}</span>
       </div>
       
-      <p class="text" style="font-size: 14px;">This code will expire in 10 minutes. If you didn't request this email, you can safely ignore it.</p>
+      <p class="text" style="font-size: 14px;">This code will expire in 5 minutes. If you didn't request this email, you can safely ignore it.</p>
     </div>
     <div class="footer">
       <p>&copy; ${new Date().getFullYear()} Your Company Inc. All rights reserved.</p>
