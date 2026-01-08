@@ -1,66 +1,72 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
 import DashboardHeader from "../components/DashboardHeader";
 import { useAuth } from "../context/AuthContext";
+import { getDashboardStats, getUserReviews } from "../api/review.api";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading, logout } = useAuth();
 
-  // Mock data - TODO: Replace with actual API calls
-  const [stats] = useState({
-    totalReviews: 142,
-    totalReviewsChange: 12,
-    issuesDetected: 847,
-    issuesDetectedChange: 5,
-    issuesResolved: 739,
-    issuesResolvedChange: 18,
-    avgReviewTime: 2.3,
-    avgReviewTimeChange: -8,
-  });
+  const [stats, setStats] = useState(null);
+  const [recentReviews, setRecentReviews] = useState([]);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [recentReviews] = useState([
-    {
-      id: "1",
-      repository: "frontend-app",
-      branch: "feature/auth",
-      status: "completed",
-      issues: 12,
-      time: "5 mins ago",
-    },
-    {
-      id: "2",
-      repository: "api-service",
-      branch: "fix/performance",
-      status: "in-progress",
-      issues: null,
-      time: "12 mins ago",
-    },
-    {
-      id: "3",
-      repository: "shared-components",
-      branch: "main",
-      status: "completed",
-      issues: 3,
-      time: "1 hour ago",
-    },
-    {
-      id: "4",
-      repository: "mobile-app",
-      branch: "feature/notifications",
-      status: "completed",
-      issues: 8,
-      time: "2 hours ago",
-    },
-  ]);
+  // Add this useEffect after your state declarations
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setDashboardLoading(true);
+        setError(null);
+
+        // Fetch both stats and recent reviews
+        const [statsResponse, reviewsResponse] = await Promise.all([
+          getDashboardStats(),
+          getUserReviews(4), // Get 4 recent reviews for the table
+        ]);
+
+        if (statsResponse.success) {
+          setStats(statsResponse.stats);
+        }
+
+        if (reviewsResponse.success) {
+          setRecentReviews(reviewsResponse.reviews);
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+        setError(err.message || "Failed to load dashboard data");
+      } finally {
+        setDashboardLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const formatTimeAgo = (timeStr) => timeStr;
+  // Replace the existing formatTimeAgo function with:
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now - date;
+    const diffInMinutes = Math.floor(diffInMs / 60000);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes} mins ago`;
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    if (diffInDays === 1) return "1 day ago";
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+
+    return date.toLocaleDateString();
+  };
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -101,14 +107,42 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  if (loading || dashboardLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
-          <h1 className="text-2xl font-bold text-text-primary">Loading...</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            Loading Dashboard...
+          </h1>
         </div>
       </div>
+    );
+  }
+
+  // Add this after your loading check:
+  if (error) {
+    return (
+      <DashboardLayout user={user} onLogout={handleLogout}>
+        <div className="flex-1 overflow-y-auto bg-bg">
+          <DashboardHeader user={user} />
+          <div className="p-8 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-red-400 text-5xl mb-4">⚠️</div>
+              <h2 className="text-2xl font-bold text-text-primary mb-2">
+                Error Loading Dashboard
+              </h2>
+              <p className="text-red-400 mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
@@ -122,7 +156,7 @@ const Dashboard = () => {
         <div className="p-8">
           {/* Statistics Cards */}
           {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {/* Total Reviews Card */}
               <div className="bg-bg-card border border-bg-border rounded-lg p-6 hover:border-primary/50 transition-colors">
                 <div className="flex items-center justify-between mb-4">
@@ -141,12 +175,6 @@ const Dashboard = () => {
                       />
                     </svg>
                   </div>
-                  <span
-                    className={`text-xs font-medium ${stats.totalReviewsChange > 0 ? "text-green-400" : "text-red-400"}`}
-                  >
-                    {stats.totalReviewsChange > 0 ? "+" : ""}
-                    {stats.totalReviewsChange}%
-                  </span>
                 </div>
                 <div className="text-3xl font-bold text-text-primary mb-1">
                   {stats.totalReviews}
@@ -154,12 +182,12 @@ const Dashboard = () => {
                 <div className="text-sm text-text-secondary">Total Reviews</div>
               </div>
 
-              {/* Issues Detected Card */}
+              {/* Total Issues Card */}
               <div className="bg-bg-card border border-bg-border rounded-lg p-6 hover:border-primary/50 transition-colors">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
                     <svg
-                      className="w-5 h-5 text-primary"
+                      className="w-5 h-5 text-red-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -172,27 +200,19 @@ const Dashboard = () => {
                       />
                     </svg>
                   </div>
-                  <span
-                    className={`text-xs font-medium ${stats.issuesDetectedChange > 0 ? "text-red-400" : "text-green-400"}`}
-                  >
-                    {stats.issuesDetectedChange > 0 ? "+" : ""}
-                    {stats.issuesDetectedChange}%
-                  </span>
                 </div>
                 <div className="text-3xl font-bold text-text-primary mb-1">
-                  {stats.issuesDetected}
+                  {stats.totalIssues}
                 </div>
-                <div className="text-sm text-text-secondary">
-                  Issues Detected
-                </div>
+                <div className="text-sm text-text-secondary">Total Issues</div>
               </div>
 
-              {/* Issues Resolved Card */}
+              {/* Total Suggestions Card */}
               <div className="bg-bg-card border border-bg-border rounded-lg p-6 hover:border-primary/50 transition-colors">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
                     <svg
-                      className="w-5 h-5 text-primary"
+                      className="w-5 h-5 text-green-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -201,55 +221,16 @@ const Dashboard = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                       />
                     </svg>
                   </div>
-                  <span
-                    className={`text-xs font-medium ${stats.issuesResolvedChange > 0 ? "text-green-400" : "text-red-400"}`}
-                  >
-                    {stats.issuesResolvedChange > 0 ? "+" : ""}
-                    {stats.issuesResolvedChange}%
-                  </span>
                 </div>
                 <div className="text-3xl font-bold text-text-primary mb-1">
-                  {stats.issuesResolved}
+                  {stats.totalSuggestions}
                 </div>
                 <div className="text-sm text-text-secondary">
-                  Issues Resolved
-                </div>
-              </div>
-
-              {/* Avg Review Time Card */}
-              <div className="bg-bg-card border border-bg-border rounded-lg p-6 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <svg
-                      className="w-5 h-5 text-primary"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  <span
-                    className={`text-xs font-medium ${stats.avgReviewTimeChange < 0 ? "text-green-400" : "text-red-400"}`}
-                  >
-                    {stats.avgReviewTimeChange > 0 ? "+" : ""}
-                    {stats.avgReviewTimeChange}%
-                  </span>
-                </div>
-                <div className="text-3xl font-bold text-text-primary mb-1">
-                  {stats.avgReviewTime}m
-                </div>
-                <div className="text-sm text-text-secondary">
-                  Avg. Review Time
+                  Total Suggestions
                 </div>
               </div>
             </div>
@@ -293,7 +274,7 @@ const Dashboard = () => {
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                      Issues
+                      Issues/Suggestions
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
                       Time
@@ -304,16 +285,12 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-bg-border">
-                  {recentReviews.map((review) => (
-                    <tr
-                      key={review.id}
-                      className="hover:bg-bg-secondary transition-colors cursor-pointer"
-                      onClick={() => navigate(`/review/${review.id}`)}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
+                  {recentReviews.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-8 text-center">
+                        <div className="text-text-muted">
                           <svg
-                            className="w-4 h-4 text-text-muted"
+                            className="w-12 h-12 mx-auto mb-4 opacity-50"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -322,62 +299,103 @@ const Dashboard = () => {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                             />
                           </svg>
-                          <span className="text-sm font-medium text-text-primary">
-                            {review.repository}
-                          </span>
+                          <p className="text-lg font-medium mb-2">
+                            No reviews yet
+                          </p>
+                          <p className="text-sm">
+                            Start by creating your first code review
+                          </p>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-bg-secondary text-text-secondary border border-bg-border">
-                          {review.branch}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(review.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {review.issues !== null ? (
-                          <span className="text-sm text-orange-400">
-                            {review.issues} issues
-                          </span>
-                        ) : (
-                          <span className="text-sm text-text-muted">—</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-text-secondary">
-                          {formatTimeAgo(review.time)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/review/${review.id}`);
-                          }}
-                          className="text-sm text-primary hover:text-primary-hover font-medium flex items-center gap-1"
-                        >
-                          View
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                            />
-                          </svg>
-                        </button>
-                      </td>
                     </tr>
-                  ))}
+                  ) : (
+                    recentReviews.map((review) => (
+                      <tr
+                        key={review.id}
+                        className="hover:bg-bg-secondary transition-colors cursor-pointer"
+                        onClick={() => navigate(`/review/${review.id}`)}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <svg
+                              className="w-4 h-4 text-text-muted"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                              />
+                            </svg>
+                            <span className="text-sm font-medium text-text-primary">
+                              {review.repository}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-bg-secondary text-text-secondary border border-bg-border">
+                            {review.branch}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(review.status)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-col gap-1">
+                            {review.issues !== null ? (
+                              <span className="text-sm text-orange-400">
+                                {review.issues} issues
+                              </span>
+                            ) : (
+                              <span className="text-sm text-text-muted">—</span>
+                            )}
+                            {review.suggestions !== null &&
+                              review.suggestions > 0 && (
+                                <span className="text-xs text-green-400">
+                                  {review.suggestions} suggestions
+                                </span>
+                              )}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm text-text-secondary">
+                            {formatTimeAgo(review.time)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/review/${review.id}`);
+                            }}
+                            className="text-sm text-primary hover:text-primary-hover font-medium flex items-center gap-1"
+                          >
+                            View
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

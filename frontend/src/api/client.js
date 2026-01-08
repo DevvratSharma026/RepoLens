@@ -1,7 +1,7 @@
 // this is the entry point for the api client
 import axios from 'axios'
 
-const clinetAPI = axios.create({
+const clientAPI = axios.create({
     baseURL: 'http://localhost:4000/v1/api',
     headers: {
         'Content-Type': 'application/json',
@@ -10,7 +10,7 @@ const clinetAPI = axios.create({
 });
 
 //Request interceptor - add token to the request headers
-clinetAPI.interceptors.request.use((config) => {
+clientAPI.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
 
     if(token) {
@@ -21,7 +21,7 @@ clinetAPI.interceptors.request.use((config) => {
 }, (error) => Promise.reject(error));
 
 //Response interceptor - handle errors
-clinetAPI.interceptors.response.use(
+clientAPI.interceptors.response.use(
     (response) => response,
     (error) => {
         const status = error.response?.status;
@@ -31,4 +31,4 @@ clinetAPI.interceptors.response.use(
     }
 )
 
-export default clinetAPI;
+export default clientAPI;

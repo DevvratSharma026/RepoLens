@@ -30,7 +30,7 @@ app.use('/v1/api/review', reviewRoutes);
 app.use('/v1/api/github', githubRoutes)
 
 app.get('/', (req, res) => {
-    res.send("backend is running...");
+  res.send("backend is running...");
 })
 
 app.listen(PORT, () => {

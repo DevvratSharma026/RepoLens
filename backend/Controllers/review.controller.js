@@ -49,7 +49,7 @@ exports.createReview = async (req, res) => {
 
 exports.getReview = async (req, res) => {
     try {
-        const reviewId = req.params.id;
+      const reviewId = req.params.id;
         if (!reviewId) {
             return res.status(400).json({
                 success: false,
@@ -95,4 +95,109 @@ exports.getReview = async (req, res) => {
         console.error('getReview error', err);
         return res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }
+}
+
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    if (!userId) {
+        return res.status(401).json({
+            success: false,
+            message: 'User not authenticated'
+        });
+    }
+    
+    // Convert userId to ObjectId if it's a string
+           const mongoose = require('mongoose');
+           const userObjectId = mongoose.Types.ObjectId.isValid(userId) 
+               ? new mongoose.Types.ObjectId(userId) 
+               : userId;
+   
+           const allUserReviews = await ReviewRequest.find({ requestBy: userObjectId }).lean();
+    const stats = await ReviewRequest.aggregate([
+      {
+        $match: {
+          requestBy: userId,
+          status: 'completed' //only count completed reviews
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalReviews: { $sum: 1 },
+          totalIssues: {
+            $sum: {
+              $ifNull: ["$result.meta.issuesFound", 0]
+            }
+          },
+          totalSuggestions: {
+            $sum: {
+              $ifNull: ["$meta.suggestionsCount", 0]
+            }
+          }
+        }
+      }
+    ]);
+    const result = stats[0] || {
+      totalReviews: 0,
+      totalIssues: 0,
+      totalSuggestions: 0
+    };
+    
+    return res.json({
+      success: true,
+      stats: {
+        totalReviews: result.totalReviews,
+        totalIssues: result.totalIssues,
+        totalSuggestions: result.totalSuggestions
+      }
+    })
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+};
+
+exports.getUserReviews = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    if(!userId) {
+      return res.status(400).json({ success: false, message: 'user not authenticated' });
+    }
+    
+    const reviews = await ReviewRequest.find({ requestBy: userId })
+      .populate({
+        path: 'snapShotId',
+        select: "repoName languageStats meta createdAt"
+      })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+  
+    //format the reviews for frontend
+    const formattedReviews = reviews.map(review => ({
+      id: review._id,
+        repository: review.snapShotId?.repoName || 'Unknown Repository',
+          branch: review.snapShotId?.meta?.branch || 'main',
+            status: review.status,
+              issues: review.result?.meta?.issuesFound || null,
+                suggesstions: review.result?.meta?.suggestionsCount || null,
+                  time: review.createdAt,
+                    snapshot: review.snapShotId
+    }));
+    
+    return res.json({
+      success: true,
+      reviews: formattedReviews
+    });
+    
+  } catch (err) {
+          return res.status(500).json({
+              success: false,
+              message: 'Server error',
+              error: err.message
+          });
+  }
 }
