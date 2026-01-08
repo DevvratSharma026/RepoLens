@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { getReviewById } from '../api/review.api';
 import { Link } from 'react-router-dom';
+import { FaArrowLeft } from "react-icons/fa";
 const POLL_INTERVAL = 3000;
 
 const ReviewStatus = () => {
@@ -119,7 +120,7 @@ const ReviewStatus = () => {
             {/* Summary Section */}
             {result.summary && (
               <div className="mb-8">
-                <Link to='/dashboard'>dashboard</Link>
+                  <Link to='/dashboard' className='text-blue-700 hover:text-blue-400 hover:underline'>dashboard</Link>
                 <h2 className="text-xl font-semibold text-text-primary mb-3">Summary</h2>
                 <div className="bg-bg-card border border-bg-border rounded-lg p-6">
                   <p className="text-text-secondary leading-relaxed">

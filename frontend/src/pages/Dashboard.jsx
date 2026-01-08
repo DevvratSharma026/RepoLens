@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
 import DashboardHeader from "../components/DashboardHeader";
 import { useAuth } from "../context/AuthContext";
 import { getDashboardStats, getUserReviews } from "../api/review.api";
+import DashboardError from "../components/DashboardComponents/DashboardError";
+import DashboardTable from "../components/DashboardComponents/DashboardTable";
+import { getStatusBadge } from "../components/DashboardComponents/DashboardSwitchCase";
+import { formatTimeAgo } from "../components/DashboardComponents/TimeFormatAgo";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,14 +18,12 @@ const Dashboard = () => {
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Add this useEffect after your state declarations
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setDashboardLoading(true);
         setError(null);
 
-        // Fetch both stats and recent reviews
         const [statsResponse, reviewsResponse] = await Promise.all([
           getDashboardStats(),
           getUserReviews(4), // Get 4 recent reviews for the table
@@ -50,62 +52,8 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  // Replace the existing formatTimeAgo function with:
-  const formatTimeAgo = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now - date;
-    const diffInMinutes = Math.floor(diffInMs / 60000);
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    const diffInDays = Math.floor(diffInHours / 24);
-
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes} mins ago`;
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    if (diffInDays === 1) return "1 day ago";
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-
-    return date.toLocaleDateString();
-  };
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "completed":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Completed
-          </span>
-        );
-      case "in-progress":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                clipRule="evenodd"
-              />
-            </svg>
-            In Progress
-          </span>
-        );
-      case "pending":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-            Pending
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
+  formatTimeAgo();
+  getStatusBadge();
 
   if (loading || dashboardLoading) {
     return (
@@ -120,29 +68,9 @@ const Dashboard = () => {
     );
   }
 
-  // Add this after your loading check:
   if (error) {
     return (
-      <DashboardLayout user={user} onLogout={handleLogout}>
-        <div className="flex-1 overflow-y-auto bg-bg">
-          <DashboardHeader user={user} />
-          <div className="p-8 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-red-400 text-5xl mb-4">⚠️</div>
-              <h2 className="text-2xl font-bold text-text-primary mb-2">
-                Error Loading Dashboard
-              </h2>
-              <p className="text-red-400 mb-4">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        </div>
-      </DashboardLayout>
+      <DashboardError />
     );
   }
 
@@ -207,32 +135,6 @@ const Dashboard = () => {
                 <div className="text-sm text-text-secondary">Total Issues</div>
               </div>
 
-              {/* Total Suggestions Card */}
-              <div className="bg-bg-card border border-bg-border rounded-lg p-6 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                    <svg
-                      className="w-5 h-5 text-green-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-text-primary mb-1">
-                  {stats.totalSuggestions}
-                </div>
-                <div className="text-sm text-text-secondary">
-                  Total Suggestions
-                </div>
-              </div>
             </div>
           )}
 
@@ -242,7 +144,7 @@ const Dashboard = () => {
               <h2 className="text-lg font-semibold text-text-primary">
                 Recent Reviews
               </h2>
-              <button className="text-sm text-primary hover:text-primary-hover font-medium flex items-center gap-1">
+              <Link className="text-sm text-primary hover:text-primary-hover font-medium flex items-center gap-1">
                 View all
                 <svg
                   className="w-4 h-4"
@@ -257,33 +159,13 @@ const Dashboard = () => {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </button>
+              </Link>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead>
-                  <tr className="border-b border-bg-border">
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                      Repository
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                      Branch
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                      Issues/Suggestions
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                      Time
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
+
+                <DashboardTable />
                 <tbody className="divide-y divide-bg-border">
                   {recentReviews.length === 0 ? (
                     <tr>

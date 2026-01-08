@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import logo from '../assets/mainLogo.png'
 
 const DashboardLayout = ({ children, user, onLogout }) => {
 
@@ -26,9 +27,7 @@ const DashboardLayout = ({ children, user, onLogout }) => {
                 <div className='px-6 py-5 border-b border-bg-border'>
                     <div className='flex items-center gap-3'>
                         <div className='w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center'>
-                            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                            <img src={logo} className='rounded-xl'/>
                         </div>
                         <div className='text-xl font-bold text-text-primary'>
                             Code Nexus
