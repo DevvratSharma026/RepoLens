@@ -148,7 +148,7 @@ exports.login = async (req, res) => {
         delete safeUser.password;
         delete safeUser.__v;
 
-        const isProd = process.env.NDOE_ENV === 'production';
+        const isProd = process.env.NODE_ENV === 'production';
         const cookieOptions = {
             expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
             httpOnly: true,

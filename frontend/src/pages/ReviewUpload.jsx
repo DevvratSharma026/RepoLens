@@ -8,6 +8,7 @@ const ReviewUpload = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const navigate = useNavigate();
 
@@ -16,6 +17,31 @@ const ReviewUpload = () => {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile.name.endsWith(".zip")) {
+        setFile(droppedFile);
+        setError(null);
+      } else {
+        setError("Please upload a valid .zip file.");
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -75,7 +101,16 @@ const ReviewUpload = () => {
                   Select Zip File
                 </label>
                 <div className="mt-2">
-                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-bg-border rounded-lg cursor-pointer bg-bg-card hover:bg-bg-secondary hover:border-primary/50 transition-colors group">
+                  <label
+                    className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-bg-card transition-colors group ${
+                      isDragging
+                        ? "border-primary bg-bg-secondary"
+                        : "border-bg-border hover:bg-bg-secondary hover:border-primary/50"
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       {file ? (
                         <>
