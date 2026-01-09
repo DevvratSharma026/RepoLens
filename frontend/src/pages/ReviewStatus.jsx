@@ -170,6 +170,37 @@ const ReviewStatus = () => {
               </div>
             )}
 
+                    {/* AI Suggestions Stacked under Issues (small & md screens) */}
+                    {result.suggestions && result.suggestions.length > 0 && (
+                      <div className="block lg:hidden mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-text-primary">AI Suggestions</h3>
+                          <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs font-semibold">
+                            {result.suggestions.length}
+                          </span>
+                        </div>
+                        <div className="space-y-4">
+                          {result.suggestions.map((suggestion, index) => (
+                            <div
+                              key={index}
+                              className="bg-bg-card border border-bg-border rounded-lg p-4 hover:border-primary/50 transition-colors"
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="mt-1 shrink-0">
+                                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <span className="text-primary text-xs font-bold">AI</span>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-text-secondary leading-relaxed flex-1">
+                                  {suggestion}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
             {/* Meta Information */}
             {result.meta && (
               <div className="bg-bg-card border border-bg-border rounded-lg p-6">
@@ -204,9 +235,9 @@ const ReviewStatus = () => {
             )}
           </div>
 
-          {/* AI Suggestions Sidebar */}
+          {/* AI Suggestions Sidebar (large screens) */}
           {result.suggestions && result.suggestions.length > 0 && (
-            <div className="w-80 border-l border-bg-border bg-bg-secondary overflow-y-auto">
+            <div className="hidden lg:block w-80 border-l border-bg-border bg-bg-secondary overflow-y-auto">
               <div className="p-6 sticky top-0 bg-bg-secondary border-b border-bg-border z-10">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-text-primary">AI Suggestions</h3>
@@ -236,6 +267,8 @@ const ReviewStatus = () => {
               </div>
             </div>
           )}
+
+          {/* AI Suggestions Stacked (small & md screens) - placed under Issues */}
         </div>
       )}
     </div>

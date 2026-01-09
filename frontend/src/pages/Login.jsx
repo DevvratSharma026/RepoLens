@@ -28,16 +28,14 @@ const Login = () => {
     };
 
     return (
-        /* 1. Added 'relative' and 'overflow-hidden' */
         <div className='relative min-h-screen flex items-center justify-center px-4 overflow-hidden'>
             
-            {/* 2. Background Video Element */}
             <video 
                 autoPlay 
                 loop 
                 muted 
                 playsInline 
-                className="absolute inset-0 w-full h-full object-cover z-0"
+                className="hidden lg:absolute lg:block inset-0 w-full h-full object-cover z-0"
             >
                 <source src={backgroundImage} type="video/mp4" />
             </video>

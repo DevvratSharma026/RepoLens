@@ -2,7 +2,7 @@ import React from 'react'
 import logo from '../../assets/mainLogo.png'
 import linkedinLogo from '../../assets/linkedin.png'
 import githubLogo from '../../assets/github.png'
-import { href, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const FooterSectionTwo = () => {
 
