@@ -9,8 +9,8 @@ const Navbar = () => {
         <div role="navigation" className='fixed top-0 left-0 right-0 z-50 flex flex-row justify-between items-center px-4 lg:px-12 bg-black/60 backdrop-blur-sm lg:py-4 md:py-2'>
         {/* section 1 -> logo, name */}
         <div className='flex items-center gap-3'>
-            <img className='h-[25px] w-[24px] rounded-xl' src={logo} alt="Code Nexus"/>
-            <h1 className='lg:text-2xl font-bold bg-linear-to-r from-blue-700 to-violet-400 bg-clip-text text-transparent'>Code Nexus</h1>
+            <img className='h-[25px] w-[24px] rounded-xl' src={logo} alt="Repo Lens"/>
+            <h1 className='lg:text-2xl font-bold bg-linear-to-r from-blue-700 to-violet-400 bg-clip-text text-transparent'>Repo Lens</h1>
         </div>
 
         {/* Desktop nav: shown only on large screens */}

@@ -19,7 +19,7 @@ const FooterSectionOne = () => {
         </h2>
 
         <p className='mt-6 text-lg md:text-xl text-gray-400 max-w-2xl'>
-          Join thousands of developers who use Code Nexus to ship faster with confidence.
+          Join thousands of developers who use Repo Lens to ship faster with confidence.
         </p>
 
         <div className='mt-10'>

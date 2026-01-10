@@ -41,9 +41,9 @@ const FooterSectionTwo = () => {
                 {/* Left Section: Branding & Socials */}
                 <div className="lg:w-1/3 space-y-6">
                     <div className="flex items-center gap-3">
-                        <img src={logo} alt="Code Nexus Logo" className="h-10 w-10 object-contain rounded-xl" />
+                        <img src={logo} alt="Repo Lens Logo" className="h-10 w-10 object-contain rounded-xl" />
                         <h2 className="font-bold text-2xl tracking-tight text-gray-900 dark:text-white">
-                            Code Nexus
+                            Repo Lens
                         </h2>
                     </div>
 
@@ -100,7 +100,7 @@ const FooterSectionTwo = () => {
             {/* Optional: Bottom Credit Bar */}
             <div className="flex justify-between max-w-7xl mx-auto px-6 py-6 border-t border-gray-100 dark:border-gray-800 text-center md:text-left">
                 <p className="text-sm text-gray-500">
-                    © {new Date().getFullYear()} Code Nexus. Built with passion for developers.
+                    © {new Date().getFullYear()} Repo Lens. Built with passion for developers.
                 </p>
                 <p>Built for developer with LOVE❤️</p>
             </div>

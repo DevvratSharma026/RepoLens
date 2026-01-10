@@ -40,7 +40,7 @@ const DashboardLayout = ({ children, user, onLogout }) => {
                             <img src={logo} className='rounded-xl'/>
                         </div>
                         <div className='text-xl font-bold text-text-primary'>
-                            Code Nexus
+                            Repo Lens
                         </div>
                     </div>
                 </div>
@@ -158,7 +158,7 @@ const DashboardLayout = ({ children, user, onLogout }) => {
                                         <img src={logo} className='rounded-xl'/>
                                     </div>
                                     <div className='text-xl font-bold text-text-primary'>
-                                        Code Nexus
+                                        Repo Lens
                                     </div>
                                 </div>
                             </div>

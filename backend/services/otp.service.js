@@ -81,7 +81,7 @@ async function issueOtpForUser(userId, email) {
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">Code Nexus</div>
+      <div class="logo">Repo Lens AI</div>
     </div>
     <div class="content">
       <h1 class="title">Verify your email address</h1>
