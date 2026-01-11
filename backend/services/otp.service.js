@@ -1,33 +1,18 @@
-const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const Otp = require("../models/Otp");
+const { Resend } = require("resend");
 
 let MAIL_FROM = process.env.MAIL_USER;
 let OTP_TTL_MIN = Number(process.env.OTP_TTL_MIN || 5);
 let OTP_RATE_LIMIT = Number(process.env.OTP_RATE_LIMIT || 3);
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 //generate the 6 digit OTP
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function createTransporter() {
-  console.log(
-    `SMTP Config: Host=${process.env.MAIL_HOST} Port=${process.env.MAIL_PORT} Secure=${process.env.MAIL_SECURE}`,
-  );
-  return nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : undefined,
-    secure: process.env.MAIL_SECURE === "true", // true for 465
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 5000, // 5 seconds
-    socketTimeout: 10000, // 10 seconds
-  });
-}
+
 
 async function issueOtpForUser(userId, email) {
   if (!userId || !email) throw new Error("userid or email not found");
@@ -115,21 +100,20 @@ async function issueOtpForUser(userId, email) {
 
   //attempt to send the mail
   try {
-    const transporter = await createTransporter();
-    await transporter.sendMail({
-      from: MAIL_FROM,
+    await resend.emails.send({
+      from: "Repo Lens <repolensai@gmail.com>", // works without domain setup
       to: email,
       subject,
-      text,
       html,
     });
   } catch (err) {
     console.warn(
-      "OTP email send failed, falling back to console. DEV OTP: ",
-      code,
+      "OTP email send failed, falling back to console. DEV OTP:",
+      code
     );
-    console.error("Nodemailer error:", err);
+    console.error("Resend error:", err);
   }
+
 
   //return success
   const result = { success: true };
