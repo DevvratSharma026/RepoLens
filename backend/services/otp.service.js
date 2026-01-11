@@ -1,6 +1,6 @@
-const nodemailer = require('nodemailer');
-const User = require('../models/User');
-const Otp = require('../models/Otp');
+const nodemailer = require("nodemailer");
+const User = require("../models/User");
+const Otp = require("../models/Otp");
 
 let MAIL_FROM = process.env.MAIL_USER;
 let OTP_TTL_MIN = Number(process.env.OTP_TTL_MIN || 5);
@@ -8,56 +8,61 @@ let OTP_RATE_LIMIT = Number(process.env.OTP_RATE_LIMIT || 3);
 
 //generate the 6 digit OTP
 function generateOtp() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 async function createTransporter() {
-    return nodemailer.createTransport({
-        host: process.env.MAIL_HOST,
-        port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : undefined,
-        secure: process.env.MAIL_SECURE === "true", // true for 465
-        auth: {
-            user: process.env.MAIL_USER,
-            pass: process.env.MAIL_PASS,
-        }
-    });
+  return nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : undefined,
+    secure: process.env.MAIL_SECURE === "true", // true for 465
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 5000, // 5 seconds
+    socketTimeout: 10000, // 10 seconds
+  });
 }
 
-
 async function issueOtpForUser(userId, email) {
-    if (!userId || !email) throw new Error("userid or email not found");
+  if (!userId || !email) throw new Error("userid or email not found");
 
-    //ensure user exists
-    const user = await User.findById(userId);
-    if (!user) throw new Error("User not found");
+  //ensure user exists
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
 
-    //simple rate limit : count OTPs in last hour
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const recentCount = await Otp.countDocuments({ user: userId, createdAt: { $gte: oneHourAgo } });
+  //simple rate limit : count OTPs in last hour
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const recentCount = await Otp.countDocuments({
+    user: userId,
+    createdAt: { $gte: oneHourAgo },
+  });
 
-    if (recentCount >= OTP_RATE_LIMIT) {
-        const err = new Error("Too many request for OTP. Try again later");
-        err.status = 429;
-        throw err;
-    }
+  if (recentCount >= OTP_RATE_LIMIT) {
+    const err = new Error("Too many request for OTP. Try again later");
+    err.status = 429;
+    throw err;
+  }
 
-    //generate otp
-    const code = generateOtp();
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + OTP_TTL_MIN * 60 * 1000);
+  //generate otp
+  const code = generateOtp();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + OTP_TTL_MIN * 60 * 1000);
 
-    const otpDoc = await Otp.create({
-        user: userId,
-        code,
-        expiresAt,
-        used: false,
-        createdAt: now,
-    });
+  const otpDoc = await Otp.create({
+    user: userId,
+    code,
+    expiresAt,
+    used: false,
+    createdAt: now,
+  });
 
-    //prepare email content
-    const subject = "Your verification OTP";
-    const text = `Your verification code is ${code}. It expires in ${OTP_TTL_MIN} minutes.`;
-    const html = `
+  //prepare email content
+  const subject = "Your verification OTP";
+  const text = `Your verification code is ${code}. It expires in ${OTP_TTL_MIN} minutes.`;
+  const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -86,17 +91,17 @@ async function issueOtpForUser(userId, email) {
     <div class="content">
       <h1 class="title">Verify your email address</h1>
       <p class="text">Thanks for signing up! To finish creating your account, please enter the following verification code in your browser:</p>
-      
+
       <div class="code-container">
         <span class="code">${code}</span>
       </div>
-      
+
       <p class="text" style="font-size: 14px;">This code will expire in 5 minutes. If you didn't request this email, you can safely ignore it.</p>
     </div>
     <div class="footer">
       <p>&copy; ${new Date().getFullYear()} Your Company Inc. All rights reserved.</p>
       <p>
-        <a href="#" class="link">Privacy Policy</a> • 
+        <a href="#" class="link">Privacy Policy</a> •
         <a href="#" class="link">Support</a>
       </p>
     </div>
@@ -105,57 +110,59 @@ async function issueOtpForUser(userId, email) {
 </html>
 `;
 
-    //attempt to send the mail
-    try {
-        const transporter = await createTransporter();
-        await transporter.sendMail({
-            from: MAIL_FROM,
-            to: email,
-            subject,
-            text,
-            html,
-        });
-    } catch (err) {
-        console.warn("OTP email send failed, falling back to console. DEV OTP: ", code);
-    }
+  //attempt to send the mail
+  try {
+    const transporter = await createTransporter();
+    await transporter.sendMail({
+      from: MAIL_FROM,
+      to: email,
+      subject,
+      text,
+      html,
+    });
+  } catch (err) {
+    console.warn(
+      "OTP email send failed, falling back to console. DEV OTP: ",
+      code,
+    );
+  }
 
-    //return success
-    const result = { success: true };
-    if (process.env.NODE_ENV !== "production") result.devCode = code;
+  //return success
+  const result = { success: true };
+  if (process.env.NODE_ENV !== "production") result.devCode = code;
 
-    return result;
+  return result;
 }
 
 async function verifyOtpForUser(userId, code) {
+  if (!userId || !code) {
+    throw new Error("userId and code are required");
+  }
 
-    if (!userId || !code) {
-        throw new Error("userId and code are required");
-    }
+  const otpDoc = await Otp.findOne({ user: userId, used: false }).sort({
+    createdAt: -1,
+  });
 
-    const otpDoc = await Otp.findOne({ user: userId, used: false }).sort({ createdAt: -1 });
+  if (!otpDoc) {
+    const err = new Error("Invalid or expired OTP code");
+    err.status = 400;
+    throw err;
+  }
+  if (otpDoc.expiresAt < new Date()) {
+    const err = new Error("OTP has expired");
+    err.status = 400;
+    throw err;
+  }
+  if (code !== otpDoc.code) {
+    const err = new Error("Invalid OTP");
+    err.status = 400;
+    throw err;
+  }
 
-    if (!otpDoc) {
-        const err = new Error("Invalid or expired OTP code");
-        err.status = 400;
-        throw err;
-    }
-    if (otpDoc.expiresAt < new Date()) {
-        const err = new Error("OTP has expired");
-        err.status = 400;
-        throw err;
-    }
-    if (code !== otpDoc.code) {
-        const err = new Error("Invalid OTP");
-        err.status = 400;
-        throw err;
-    }
+  otpDoc.used = true;
+  await otpDoc.save();
 
-    otpDoc.used = true;
-    await otpDoc.save();
-
-    return true;
-
+  return true;
 }
-
 
 module.exports = { issueOtpForUser, verifyOtpForUser };
