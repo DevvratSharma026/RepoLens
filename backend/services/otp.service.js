@@ -12,6 +12,9 @@ function generateOtp() {
 }
 
 async function createTransporter() {
+  console.log(
+    `SMTP Config: Host=${process.env.MAIL_HOST} Port=${process.env.MAIL_PORT} Secure=${process.env.MAIL_SECURE}`,
+  );
   return nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : undefined,
