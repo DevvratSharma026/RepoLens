@@ -26,7 +26,9 @@ const Signup = () => {
 
     try {
       const response = await signup(formData);
-      navigate('/verify-otp', { state: { email: formData.email } });
+      if(response.success) {
+        navigate('/verify-otp', { state: { email: formData.email } });
+      }
     } catch (err) {
       setError(err.message);
     } finally {
