@@ -25,16 +25,25 @@ clientAPI.interceptors.request.use(
 
 //Response interceptor - handle errors
 clientAPI.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const status = error.response?.status;
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "An unexpected error occurred";
-
-    throw { status, message };
+  (response) => {
+    // Always return the full Axios response
+    return response;
   },
+  (error) => {
+    // 🚨 Critical fix: Axios may throw without response in prod
+    if (!error.response) {
+      return Promise.reject(
+        new Error("Network error. Please try again.")
+      );
+    }
+
+    const message =
+      error.response.data?.message ||
+      error.response.statusText ||
+      "Request failed";
+
+    return Promise.reject(new Error(message));
+  }
 );
 
 export default clientAPI;
