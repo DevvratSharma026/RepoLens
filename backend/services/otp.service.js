@@ -125,6 +125,7 @@ async function issueOtpForUser(userId, email) {
       "OTP email send failed, falling back to console. DEV OTP: ",
       code,
     );
+    console.error("Nodemailer error:", err);
   }
 
   //return success
