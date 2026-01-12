@@ -3,20 +3,39 @@ const detectLanguage = require('../utils/langDetect')
 const path = require('path');
 const uploadFolderToS3 = require('../services/s3UploadFolder');
 const RepoSnapShot = require('../models/RepoSnapShot');
-const fs = require('fs/promises');
+const fs = require('fs');
+const os = require('os');
+const fsSync = require('fs');
 const cleanupPath = require('../utils/cleanup');
 
 exports.upload = async (req, res) => {
     try {
         //multer should populate req.file
-        if(!req.file || !req.file.path) {
+        if (!req.file || !req.file.path) {
             return res.status(400).json({
                 success: false,
                 message: "No ZIP file provided"
             });
         }
 
-        const zipPath = req.file.path;
+        // ensure tmp/uploads exists (already does, but safe)
+        const uploadDir = path.join(process.cwd(), "tmp/uploads");
+
+        if (!fsSync.existsSync(uploadDir)) {
+            fsSync.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        // create a safe, owned path
+        const safeZipPath = path.join(
+            uploadDir,
+            `${Date.now()}-${req.file.originalname}`
+        );
+
+        // MOVE the file immediately (this is the critical step)
+        await fs.rename(req.file.path, safeZipPath);
+
+        // from now on, ONLY use this
+        const zipPath = safeZipPath;
         const originalname = req.file.originalname;
         const userId = req.user ? req.user._id : null;
 
@@ -52,7 +71,7 @@ exports.upload = async (req, res) => {
         try {
             await cleanupPath(zipPath);
             await cleanupPath(extractedPath);
-        } catch(cleanupErr) {
+        } catch (cleanupErr) {
             console.warn('Cleanup error (non-fatel)', cleanupErr);
         }
 
@@ -67,7 +86,7 @@ exports.upload = async (req, res) => {
             languageStats,
             uploadedBy: userId
         });
-    } catch( err ) {
+    } catch (err) {
         console.error('Uploaded controller error ', err);
         return res.status(500).json({
             success: false,
