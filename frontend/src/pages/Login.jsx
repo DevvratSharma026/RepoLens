@@ -65,7 +65,7 @@ const Login = () => {
                     <button
                         type='submit'
                         disabled={loading}
-                        className='cursor:pointer w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center'
+                        className='cursor-pointer w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center'
                     >
                         {loading ? (
                             <span className="flex items-center gap-2">
