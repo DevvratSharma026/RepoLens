@@ -18,24 +18,7 @@ exports.upload = async (req, res) => {
             });
         }
 
-        // ensure tmp/uploads exists (already does, but safe)
-        const uploadDir = path.join(process.cwd(), "tmp/uploads");
-
-        if (!fsSync.existsSync(uploadDir)) {
-            fsSync.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        // create a safe, owned path
-        const safeZipPath = path.join(
-            uploadDir,
-            `${Date.now()}-${req.file.originalname}`
-        );
-
-        // MOVE the file immediately (this is the critical step)
-        await fs.rename(req.file.path, safeZipPath);
-
-        // from now on, ONLY use this
-        const zipPath = safeZipPath;
+        const zipPath = req.file.path;
         const originalname = req.file.originalname;
         const userId = req.user ? req.user._id : null;
 
