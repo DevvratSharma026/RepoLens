@@ -1,11 +1,13 @@
 const User = require("../models/User");
 const Otp = require("../models/Otp");
-const { Resend } = require("resend");
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
 let MAIL_FROM = process.env.MAIL_USER;
 let OTP_TTL_MIN = Number(process.env.OTP_TTL_MIN || 5);
 let OTP_RATE_LIMIT = Number(process.env.OTP_RATE_LIMIT || 3);
-const resend = new Resend(process.env.RESEND_API_KEY)
+let client = SibApiV3Sdk.ApiClient.instance;
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
+const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
 //generate the 6 digit OTP
 function generateOtp() {
@@ -100,19 +102,20 @@ async function issueOtpForUser(userId, email) {
 
   //attempt to send the mail
   try {
-    await resend.emails.send({
-      from: "Repo Lens <onboarding@repolens.ai>", // works without domain setup
-      to: email,
+    await tranEmailApi.sendTransacEmail({
+      sender: {
+        email: "repolensai@gmail.com",
+        name: "Repo Lens AI",
+      },
+      to: [{ email }],
       subject,
-      html,
+      htmlContent: html,
     });
   } catch (err) {
-    console.warn(
-      "OTP email send failed, falling back to console. DEV OTP:",
-      code
-    );
-    console.error("Resend error:", err);
+    console.warn("OTP email send failed, DEV OTP:", code);
+    console.error("Brevo error:", err);
   }
+
 
 
   //return success
