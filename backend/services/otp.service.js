@@ -101,7 +101,7 @@ async function issueOtpForUser(userId, email) {
   //attempt to send the mail
   try {
     await resend.emails.send({
-      from: "Repo Lens <repolensai@gmail.com>", // works without domain setup
+      from: "Repo Lens <onboarding@repolens.ai>", // works without domain setup
       to: email,
       subject,
       html,
