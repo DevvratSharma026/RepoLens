@@ -39,18 +39,18 @@ const VerifyOtp = () => {
   }, [email, navigate]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-center py-12 px-6 lg:px-8">
+    <div className="min-h-screen bg-bg flex flex-col justify-center py-12 px-6 lg:px-8">
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center z-20">
         {/* Verification Icon */}
-        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 mb-6">
+        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-indigo-400 mb-6">
           <svg className="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
 
-        <h2 className="text-3xl font-extrabold text-gray-200">Check your email</h2>
-        <p className="mt-2 text-sm text-gray-100">
+        <h2 className="text-3xl font-extrabold text-gray-500">Check your email</h2>
+        <p className="mt-2 text-sm text-gray-600">
           We sent a verification code to <br />
           <span className="font-semibold text-white">{email}</span>
         </p>
@@ -60,7 +60,7 @@ const VerifyOtp = () => {
         <div className="shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 py-8 px-4 rounded-2xl sm:px-10">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 text-center mb-4">
+              <label className="block text-sm font-medium text-gray-600 text-center mb-4">
                 Enter 6-digit security code
               </label>
               <input
