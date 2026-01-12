@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { login } from '../api/auth.api';
 import { Link, useNavigate } from 'react-router-dom';
-import backgroundImage from '../assets/loginVideo.mp4'
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -29,20 +28,6 @@ const Login = () => {
 
     return (
         <div className='relative min-h-screen flex items-center justify-center px-4 overflow-hidden'>
-            
-            <video 
-                autoPlay 
-                loop 
-                muted 
-                playsInline 
-                className="hidden lg:absolute lg:block inset-0 w-full h-full object-cover z-0"
-            >
-                <source src={backgroundImage} type="video/mp4" />
-            </video>
-
-            {/* 3. Optional: Dark Overlay to make text pop */}
-            <div className="absolute inset-0 bg-black/40 z-10"></div>
-
             {/* 4. Content - Added 'z-20' to stay above video and overlay */}
             <div className='relative z-20 max-w-md w-full space-y-8 p-8 rounded-xl shadow-white shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100'>
                 <div className="text-center">
@@ -80,7 +65,7 @@ const Login = () => {
                     <button
                         type='submit'
                         disabled={loading}
-                        className='w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center'
+                        className='cursor:pointer w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center'
                     >
                         {loading ? (
                             <span className="flex items-center gap-2">

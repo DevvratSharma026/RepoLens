@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { signup } from '../api/auth.api';
 import { Link, useNavigate } from 'react-router-dom';
-import backgroundImage from '../assets/loginVideo.mp4';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -45,20 +44,6 @@ const Signup = () => {
   return (
     /* Added 'relative' and 'overflow-hidden' to keep video contained */
     <div className='relative min-h-screen flex flex-col justify-center py-12 px-6 lg:px-8 overflow-hidden'>
-      
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="hidden lg:absolute lg:block inset-0 w-full h-full object-cover z-0"
-      >
-        <source src={backgroundImage} type="video/mp4" />
-      </video>
-
-      {/* Dark Overlay for contrast */}
-      <div className="absolute inset-0 bg-black/50 z-10"></div>
 
       {/* Header - Added 'relative z-20' */}
       <div className='relative z-20 sm:mx-auto sm:w-full sm:max-w-md'>
@@ -155,7 +140,7 @@ const Signup = () => {
             <button
               type='submit'
               disabled={loading}
-              className='w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50'
+              className='cursor:pointer w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50'
             >
               {loading ? 'Creating account...' : 'Get Started'}
             </button>

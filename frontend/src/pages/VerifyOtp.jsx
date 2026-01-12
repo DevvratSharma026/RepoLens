@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { verifyOtp } from '../api/auth.api'
 import { useLocation, useNavigate } from 'react-router-dom';
-import otpVideo from '../assets/otpVideo.mp4'
 
 const VerifyOtp = () => {
   const location = useLocation();
@@ -41,16 +40,6 @@ const VerifyOtp = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-center py-12 px-6 lg:px-8">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      >
-        <source src={otpVideo} type="video/mp4" />
-      </video>
-      <div className="absolute inset-0 bg-black/40 z-10"></div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center z-20">
         {/* Verification Icon */}
@@ -102,20 +91,11 @@ const VerifyOtp = () => {
             <button
               type="submit"
               disabled={loading || success}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="cursor:pointer w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Verifying...' : 'Verify Account'}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-400">
-              Didn't receive the code?{' '}
-              <button type="button" className="font-medium text-indigo-600 hover:text-indigo-500 underline decoration-2 underline-offset-4">
-                Resend code
-              </button>
-            </p>
-          </div>
         </div>
       </div>
     </div>
